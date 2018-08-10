@@ -47,10 +47,10 @@ items:
       type: Source
     triggers:
     - github:
-        secret: U-I31i4WQj2avgJC69yY
+        secret: -mKPJH-qae3UmH71IJ2w
       type: GitHub
     - generic:
-        secret: SxhiW8fKZhwuuUgwkPVu
+        secret: XfhQclLDSFcUn4oZAtXm
       type: Generic
     - type: ConfigChange
     - imageChange: {}
@@ -102,9 +102,9 @@ items:
           image: preference-v1:latest
           name: preference-v1
           ports:
-          - containerPort: 9779
-            protocol: TCP
           - containerPort: 8778
+            protocol: TCP
+          - containerPort: 9779
             protocol: TCP
           resources: {}
     test: false
