@@ -1,0 +1,148 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: customer
+    name: customer
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: customer
+    name: customer
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: customer:latest
+    postCommit: {}
+    resources: {}
+    source:
+      contextDir: customer/java/springboot
+      git:
+        uri: https://github.com/eformat/istio-tutorial
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: jboss-fuse70-java-openshift:1.0
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: 4IufEVKbIy33NN-c_etU
+      type: GitHub
+    - generic:
+        secret: IlMxIj61G6XxGJ7JZaXf
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: customer
+    name: customer
+  spec:
+    replicas: 1
+    selector:
+      app: customer
+      deploymentconfig: customer
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: customer
+          deploymentconfig: customer
+      spec:
+        containers:
+        - env:
+          - name: JAEGER_ENDPOINT
+            value: http://jaeger-collector.istio-system.svc:14268/api/traces
+          - name: JAEGER_PROPAGATION
+            value: b3
+          - name: JAEGER_SAMPLER_PARAM
+            value: "1"
+          - name: JAEGER_SAMPLER_TYPE
+            value: const
+          - name: JAEGER_SERVICE_NAME
+            value: customer
+          - name: JAVA_OPTIONS
+            value: -Xms128m -Xmx256m -Djava.net.preferIPv4Stack=true
+          image: customer:latest
+          name: customer
+          ports:
+          - containerPort: 8778
+            protocol: TCP
+          - containerPort: 9779
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - customer
+        from:
+          kind: ImageStreamTag
+          name: customer:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: customer
+    name: customer
+  spec:
+    ports:
+    - name: 8778-tcp
+      port: 8778
+      protocol: TCP
+      targetPort: 8778
+    - name: 9779-tcp
+      port: 9779
+      protocol: TCP
+      targetPort: 9779
+    selector:
+      app: customer
+      deploymentconfig: customer
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}
